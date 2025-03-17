@@ -6,7 +6,7 @@
 
 ### Instruções do trabalho:
 
-Existe um documento com 8 temas/problemas que podem ser resolvidos utilizando Programação Orientada a Objeto (POO) (LINK => https://drive.google.com/file/d/1Ab7_SOk4uQNigBCZDgloxkRS_wEzropG/view?usp=sha ring). Você e sua equipe devem escolher um tema a ser trabalho e desenvolver um código em JAVA utilizando os critérios de POO e montar uma apresentação explicando como foi feito essa solução. Resumindo a sua apresentação deve:
+Existe um documento com 8 temas/problemas que podem ser resolvidos utilizando Programação Orientada a Objeto (POO) (LINK => https://drive.google.com/file/d/1Ab7_SOk4uQNigBCZDgloxkRS_wEzropG/view?usp=sharing). Você e sua equipe devem escolher um tema a ser trabalho e desenvolver um código em JAVA utilizando os critérios de POO e montar uma apresentação explicando como foi feito essa solução. Resumindo a sua apresentação deve:
 - Ter a implementação do código em JAVA referente ao tema proposto, ou seja, a
 equipe vai ter que rodar o código na hora da apresentação e apresentar o que foi
 feito para solucionar o desafio;
