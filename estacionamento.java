@@ -1,89 +1,104 @@
-
 import java.util.Scanner;
+import java.util.HashMap;
+import java.time.LocalTime;
+import java.time.Duration;
 
 public class estacionamento {
-
     public static void main(String args[]) {
         Scanner scanner = new Scanner(System.in);
-
-        //detalhe do estacionamento(estacionar ou retirar o veiculo)------------------------------------------
-
-        String veiculo;
-
-        int repete = 0;
-        int escolhaEntreSai = 0;
         int[] vaga = new int[31];
         double[] precoVaga = new double[31];
-
-        for(int i = 0; i < 31; i++){
-            vaga[i] = 0;
-        }
-
-        while(escolhaEntreSai == 0){
-            System.out.println("Digite 1 se deseja estacionar um veiculo ou 2 caso deseje retira-lo: ");
-            int escolhaEstacionar = scanner.nextInt();
-            if (escolhaEstacionar == 1){
-                repete = 0;
-                while (repete == 0){
-
-                    System.out.println("Digite o veiculo a estacionar: ");
-                    scanner.nextLine(); // Adicionado para consumir o \n deixado pelo nextInt()
-                    veiculo = scanner.nextLine();
-
-                    double preco = 0;
-
-                    if (veiculo.equalsIgnoreCase("carro")) {
-                        System.out.println("Digite o tamanho da vaga: \n1 para pequeno; \n2 pra medio; \n3 pra grande\n");
-                        int tamanhoVaga = scanner.nextInt();
-                        int whilePreco = 0;
-                        while(whilePreco < 1){
-                            if (tamanhoVaga == 1) {
-                                preco = 4.00;
-                                whilePreco = 1;
-                            } else if (tamanhoVaga == 2) {
-                                preco = 6.00;
-                                whilePreco = 1;
-                            } else if(tamanhoVaga == 3) {
-                                preco = 8.00;
-                                whilePreco = 1;
-                            }
-                            else{
-                                System.out.println("Numero invalido!");
-                            }
-                        }
-
-                        for(int i = 1; i < 19; i++){
-                            if(vaga[i] == 0){
-                                vaga[i] += 1;
-                                precoVaga[i] = preco;
-                                System.out.println("O carro estacionou na vaga: " + i);
-                                break;
-                            }
-                        }
-
-                        repete = 1;
-
-                    } else if (veiculo.equalsIgnoreCase("moto")) {
-                        preco = 2.50;
-                        for (int i = 19; i < 31; i++) { // Considere as vagas de 19 a 30 para motos
-                            if (vaga[i] == 0) {
-                                vaga[i] = 1;
-                                precoVaga[i] = preco;
-                                System.out.println("A moto estacionou na vaga: " + i);
-                                break;
-                            }
-                        }
-                        repete = 1;
-                    } else{
-                        System.out.println("Digitou errado!");
+        HashMap<Integer, String> placas = new HashMap<>();
+        HashMap<Integer, LocalTime> tempoEntrada = new HashMap<>();
+        HashMap<Integer, String> veiculosEstacionados = new HashMap<>();
+        
+        while (true) {
+            System.out.println("Digite 1 para estacionar, 2 para retirar um veículo, 3 para ver veículos estacionados ou 0 para sair: ");
+            int escolha = scanner.nextInt();
+            
+            if (escolha == 1) { // Estacionar veículo
+                scanner.nextLine(); 
+                System.out.println("Digite a placa do veículo: ");
+                String placa = scanner.nextLine();
+                
+                System.out.println("Digite o tipo de veículo (carro/moto): ");
+                String veiculo = scanner.nextLine();
+                
+                System.out.println("Digite o horário de entrada (HH:MM): ");
+                String horarioEntradaStr = scanner.nextLine();
+                LocalTime horarioEntrada = LocalTime.parse(horarioEntradaStr);
+                
+                double preco = 0;
+                int vagaInicio = (veiculo.equalsIgnoreCase("moto")) ? 19 : 1;
+                int vagaFim = (veiculo.equalsIgnoreCase("moto")) ? 30 : 18;
+                
+                if (veiculo.equalsIgnoreCase("carro")) {
+                    System.out.println("Escolha o tamanho da vaga: 1 (pequeno), 2 (médio), 3 (grande)");
+                    int tamanhoVaga = scanner.nextInt();
+                    preco = (tamanhoVaga == 1) ? 4.00 : (tamanhoVaga == 2) ? 6.00 : 8.00;
+                } else if (veiculo.equalsIgnoreCase("moto")) {
+                    preco = 2.50;
+                } else {
+                    System.out.println("Tipo de veículo inválido!");
+                    continue;
+                }
+                
+                boolean estacionado = false;
+                for (int i = vagaInicio; i <= vagaFim; i++) {
+                    if (vaga[i] == 0) {
+                        vaga[i] = 1;
+                        precoVaga[i] = preco;
+                        tempoEntrada.put(i, horarioEntrada);
+                        veiculosEstacionados.put(i, veiculo);
+                        placas.put(i, placa);
+                        System.out.println("O " + veiculo + " com placa " + placa + " estacionou na vaga: " + i + " às " + horarioEntrada);
+                        estacionado = true;
+                        break;
                     }
                 }
-            }
-            else if(escolhaEstacionar == 2){
-                System.out.println("Incompleto");
-            } else if(escolhaEstacionar == 0){
-                escolhaEntreSai = 1;
+                if (!estacionado) {
+                    System.out.println("Não há vagas disponíveis para " + veiculo + ".");
+                }
+            } 
+            else if (escolha == 2) { // Retirar veículo
+                System.out.println("Digite o número da vaga a liberar: ");
+                int numVaga = scanner.nextInt();
+                if (vaga[numVaga] == 1) {
+                    System.out.println("Digite o horário de saída (HH:MM): ");
+                    scanner.nextLine();
+                    String horarioSaidaStr = scanner.nextLine();
+                    LocalTime horarioSaida = LocalTime.parse(horarioSaidaStr);
+                    
+                    LocalTime entrada = tempoEntrada.get(numVaga);
+                    long minutos = Duration.between(entrada, horarioSaida).toMinutes();
+                    double totalPagar = precoVaga[numVaga] * (minutos / 60.0);
+                    System.out.println("O veículo com placa " + placas.get(numVaga) + " na vaga " + numVaga + " ficou estacionado por " + minutos + " minutos.");
+                    System.out.printf("Total a pagar: R$ %.2f\n", totalPagar);
+                    
+                    vaga[numVaga] = 0;
+                    precoVaga[numVaga] = 0;
+                    tempoEntrada.remove(numVaga);
+                    veiculosEstacionados.remove(numVaga);
+                    placas.remove(numVaga);
+                } else {
+                    System.out.println("A vaga está vazia ou inválida!");
+                }
+            } 
+            else if (escolha == 3) { // Mostrar veículos estacionados
+                System.out.println("Veículos estacionados:");
+                for (int i = 1; i <= 30; i++) {
+                    if (vaga[i] == 1) {
+                        System.out.println("Vaga " + i + ": " + veiculosEstacionados.get(i) + " (Placa: " + placas.get(i) + ", Desde: " + tempoEntrada.get(i) + ")");
+                    }
+                }
+            } 
+            else if (escolha == 0) { // Sair
+                System.out.println("Encerrando sistema...");
+                break;
+            } else {
+                System.out.println("Opção inválida!");
             }
         }
+        scanner.close();
     }
 }
