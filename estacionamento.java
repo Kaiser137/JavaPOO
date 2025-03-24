@@ -1,17 +1,19 @@
+//Aqui aplicamos alguns imports necessários para a lógica do programa
 import java.util.Scanner;
 import java.util.HashMap;
 import java.time.LocalTime;
 import java.time.Duration;
-
+//---------------------------------------------------------------------------------------------------------------------------------------
 public class estacionamento {
     public static void main(String args[]) {
         Scanner scanner = new Scanner(System.in);
         int[] vaga = new int[31];
         double[] precoVaga = new double[31];
+//Aqui usamos o "HashMap" como ponto identificador para a placa, o tempo de entrada e a localização do veiculo estacionado---------------
         HashMap<Integer, String> placas = new HashMap<>();
         HashMap<Integer, LocalTime> tempoEntrada = new HashMap<>();
         HashMap<Integer, String> veiculosEstacionados = new HashMap<>();
-        
+//Lógica para o estacionamento do veiculo------------------------------------------------------------------------------------------------        
         while (true) {
             System.out.println("Digite 1 para estacionar, 2 para retirar um veículo, 3 para ver veículos estacionados ou 0 para sair: ");
             int escolha = scanner.nextInt();
