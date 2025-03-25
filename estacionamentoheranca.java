@@ -59,54 +59,15 @@ class Moto extends Veiculo {
     }
 }
 
-// Classe para representar uma Vaga
-class Vaga {
-    private int numero;
-    private boolean ocupada;
-    private Veiculo veiculo;
-    private LocalTime entrada;
-    
-    public Vaga(int numero) {
-        this.numero = numero;
-        this.ocupada = false;
-    }
-    
-    public boolean estacionar(Veiculo veiculo, LocalTime entrada) {
-        if (!ocupada) {
-            this.veiculo = veiculo;
-            this.entrada = entrada;
-            this.ocupada = true;
-            return true;
-        }
-        return false;
-    }
-    
-    public double liberar(LocalTime saida) {
-        if (ocupada) {
-            long minutos = Duration.between(entrada, saida).toMinutes();
-            double total = veiculo.getPrecoPorHora() * (minutos / 60.0);
-            ocupada = false;
-            return total;
-        }
-        return 0;
-    }
-    
-    // Getters
-    public int getNumero() { return numero; }
-    public boolean isOcupada() { return ocupada; }
-    public Veiculo getVeiculo() { return veiculo; }
-    public LocalTime getEntrada() { return entrada; }
-}
-
 public class Estacionamento {
     public static void main(String args[]) {
         Scanner scanner = new Scanner(System.in);
-        Vaga[] vagas = new Vaga[31]; // Índice 0 não usado
+        int[] vaga = new int[31];
+        double[] precoVaga = new double[31];
         
-        // Inicializar vagas
-        for (int i = 1; i <= 30; i++) {
-            vagas[i] = new Vaga(i);
-        }
+        // HashMaps reintroduzidos
+        HashMap<Integer, Veiculo> veiculosEstacionados = new HashMap<>();
+        HashMap<Integer, LocalTime> tempoEntrada = new HashMap<>();
         
         while (true) {
             System.out.println("Digite 1 para estacionar, 2 para retirar um veículo, 3 para ver veículos estacionados ou 0 para sair: ");
@@ -141,7 +102,11 @@ public class Estacionamento {
                 int vagaFim = (tipoVeiculo.equalsIgnoreCase("moto")) ? 30 : 18;
                 
                 for (int i = vagaInicio; i <= vagaFim; i++) {
-                    if (vagas[i].estacionar(veiculo, horarioEntrada)) {
+                    if (vaga[i] == 0) {
+                        vaga[i] = 1;
+                        precoVaga[i] = veiculo.getPrecoPorHora();
+                        tempoEntrada.put(i, horarioEntrada);
+                        veiculosEstacionados.put(i, veiculo);
                         System.out.println("O " + veiculo.getTipo() + " com placa " + veiculo.getPlaca() + 
                                          " estacionou na vaga: " + i + " às " + horarioEntrada);
                         estacionado = true;
@@ -155,20 +120,25 @@ public class Estacionamento {
             else if (escolha == 2) { // Retirar veículo
                 System.out.println("Digite o número da vaga a liberar: ");
                 int numVaga = scanner.nextInt();
-                
-                if (numVaga >= 1 && numVaga <= 30 && vagas[numVaga].isOcupada()) {
+                if (vaga[numVaga] == 1) {
                     System.out.println("Digite o horário de saída (HH:MM): ");
                     scanner.nextLine();
                     String horarioSaidaStr = scanner.nextLine();
                     LocalTime horarioSaida = LocalTime.parse(horarioSaidaStr);
                     
-                    double totalPagar = vagas[numVaga].liberar(horarioSaida);
-                    Veiculo veiculo = vagas[numVaga].getVeiculo();
-                    long minutos = Duration.between(vagas[numVaga].getEntrada(), horarioSaida).toMinutes();
+                    LocalTime entrada = tempoEntrada.get(numVaga);
+                    Veiculo veiculo = veiculosEstacionados.get(numVaga);
+                    long minutos = Duration.between(entrada, horarioSaida).toMinutes();
+                    double totalPagar = veiculo.getPrecoPorHora() * (minutos / 60.0);
                     
-                    System.out.println("O veículo com placa " + veiculo.getPlaca() + " na vaga " + numVaga + 
-                                     " ficou estacionado por " + minutos + " minutos.");
+                    System.out.println("O veículo " + veiculo.getTipo() + " com placa " + veiculo.getPlaca() + 
+                                      " na vaga " + numVaga + " ficou estacionado por " + minutos + " minutos.");
                     System.out.printf("Total a pagar: R$ %.2f\n", totalPagar);
+                    
+                    vaga[numVaga] = 0;
+                    precoVaga[numVaga] = 0;
+                    tempoEntrada.remove(numVaga);
+                    veiculosEstacionados.remove(numVaga);
                 } else {
                     System.out.println("A vaga está vazia ou inválida!");
                 }
@@ -176,11 +146,11 @@ public class Estacionamento {
             else if (escolha == 3) { // Mostrar veículos estacionados
                 System.out.println("Veículos estacionados:");
                 for (int i = 1; i <= 30; i++) {
-                    if (vagas[i].isOcupada()) {
-                        Veiculo v = vagas[i].getVeiculo();
+                    if (vaga[i] == 1) {
+                        Veiculo v = veiculosEstacionados.get(i);
                         System.out.println("Vaga " + i + ": " + v.getTipo() + 
                                          " (Placa: " + v.getPlaca() + 
-                                         ", Desde: " + vagas[i].getEntrada() + ")");
+                                         ", Desde: " + tempoEntrada.get(i) + ")");
                     }
                 }
             } 
